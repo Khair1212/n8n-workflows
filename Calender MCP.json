@@ -225,6 +225,20 @@
           "name": "Google Calendar account"
         }
       }
+    },
+    {
+      "parameters": {
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1216,
+        160
+      ],
+      "id": "5cf4ced9-bf2c-4aed-9e15-4026cc72462c",
+      "name": "HTTP Request"
     }
   ],
   "pinData": {},
@@ -294,6 +308,17 @@
           }
         ]
       ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -302,7 +327,7 @@
     "timezone": "Asia/Dhaka",
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "2fc12902-ef2d-46af-9d12-85185749820f",
+  "versionId": "132a3319-b0a8-4dd0-8dd8-12699d3bb7fb",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "3dd7d3035157a6c8c0bc0904aa8991f90872849a76d57fd6b5eedb4e09f76c2f"
