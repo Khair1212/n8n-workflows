@@ -1,0 +1,312 @@
+{
+  "name": "Calender MCP",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "c627d58d-63f5-4876-babb-5c3b1243d7e9"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [
+        480,
+        32
+      ],
+      "id": "e80b9af6-dcf1-4512-932c-d16d1b451df5",
+      "name": "MCP Server Trigger",
+      "webhookId": "c627d58d-63f5-4876-babb-5c3b1243d7e9"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create an Event in Google Calendar API with 1 attendee",
+        "calendar": {
+          "__rl": true,
+          "value": "khairahmad6@gmail.com",
+          "mode": "list",
+          "cachedResultName": "khairahmad6@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', `Take the time from the user message`, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', `Take the time from the user message`, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', `take the attendee mail from user message`, 'string') }}"
+          ],
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "showMeAs": "transparent",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        240
+      ],
+      "id": "d6ea0555-74ba-4879-a2d1-d71a8b91e2dc",
+      "name": "Create an Event in Google Calendar with 1 Attendee",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "IBEB6gBdfAqXDaiN",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create an Event in Google Calendar API with 2 attendees",
+        "calendar": {
+          "__rl": true,
+          "value": "khairahmad6@gmail.com",
+          "mode": "list",
+          "cachedResultName": "khairahmad6@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', `take the first attendee email from the message.`, 'string') }}",
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees1_Attendees', `take the second attendee email from the message.`, 'string') }}"
+          ],
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        320
+      ],
+      "id": "340be338-7917-46da-b700-3fe1c2f88ff2",
+      "name": "Create an Event in Google Calendar with 2 Attendees",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "IBEB6gBdfAqXDaiN",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete an event from Google Calendar API",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "khairahmad6@gmail.com",
+          "mode": "list",
+          "cachedResultName": "khairahmad6@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        288
+      ],
+      "id": "d7216a4f-5089-4984-8bde-25279906da14",
+      "name": "Delete an event Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "IBEB6gBdfAqXDaiN",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a weekly frequent Event in Google Calendar API with 2 attendees ",
+        "calendar": {
+          "__rl": true,
+          "value": "khairahmad6@gmail.com",
+          "mode": "list",
+          "cachedResultName": "khairahmad6@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', `take the first attendee email from the message.`, 'string') }}",
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees1_Attendees', `take the second attendee email from the message.`, 'string') }}"
+          ],
+          "repeatFrecuency": "weekly"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        368
+      ],
+      "id": "9ee86573-8fe5-40b4-9d19-55befa34db25",
+      "name": "Create a weekly recurrent event Event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "IBEB6gBdfAqXDaiN",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Google Calendar MCP Server\n1. Add Google Calendar Credentials\n2. Select the Calendar from the list (your mail)",
+        "height": 512,
+        "width": 1232
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "1db7b4eb-1934-41a1-81c8-598059674f5b",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get an Event from Google Calendar API",
+        "operation": "get",
+        "calendar": {
+          "__rl": true,
+          "value": "khairahmad6@gmail.com",
+          "mode": "list",
+          "cachedResultName": "khairahmad6@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        832,
+        368
+      ],
+      "id": "3714511b-a05f-46bb-9f14-76278ac1109d",
+      "name": "Get_Events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "IBEB6gBdfAqXDaiN",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get Multiple Events from Google Calendar API",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "khairahmad6@gmail.com",
+          "mode": "list",
+          "cachedResultName": "khairahmad6@gmail.com"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        960,
+        320
+      ],
+      "id": "1ab6919d-9ab7-4336-9543-0f32c445aaf2",
+      "name": "GetAll_Events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "IBEB6gBdfAqXDaiN",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Create an Event in Google Calendar with 1 Attendee": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an Event in Google Calendar with 2 Attendees": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete an event Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a weekly recurrent event Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_Events": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetAll_Events": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Dhaka",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "2fc12902-ef2d-46af-9d12-85185749820f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3dd7d3035157a6c8c0bc0904aa8991f90872849a76d57fd6b5eedb4e09f76c2f"
+  },
+  "id": "SY8aeAZdrIY3BjCs",
+  "tags": []
+}
