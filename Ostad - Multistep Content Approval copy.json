@@ -1,0 +1,2976 @@
+{
+  "name": "Ostad - Multistep Content Approval copy",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": " Content Generation Request",
+        "formDescription": "=Submit details for AI-driven multi-platform content generation about current news and trends.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Topic",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "AI and Machine Learning"
+                  },
+                  {
+                    "option": "Technology"
+                  },
+                  {
+                    "option": "Business/Finance"
+                  },
+                  {
+                    "option": "Social Media "
+                  },
+                  {
+                    "option": "Entertainment"
+                  },
+                  {
+                    "option": "Other (specify in notes)"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Content Tone",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Informative/Educational"
+                  },
+                  {
+                    "option": "Professional/Corporate"
+                  },
+                  {
+                    "option": "Conversational/Casual"
+                  },
+                  {
+                    "option": "Humorous/Entertaining"
+                  },
+                  {
+                    "option": "Critical/Analytical"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Target Platforms (Select Multiple)",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "LinkedIn"
+                  },
+                  {
+                    "option": "Facebook"
+                  },
+                  {
+                    "option": "X (Twitter)"
+                  },
+                  {
+                    "option": "Threads"
+                  }
+                ]
+              },
+              "multiselect": true,
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Content Type ",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Weekly Summary"
+                  },
+                  {
+                    "option": "Insight Sandwich"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Word Count Preference",
+              "fieldType": "number",
+              "placeholder": "Give a number between 100 to 10,000"
+            },
+            {
+              "fieldLabel": "Do you want tailored image for each platform ?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {
+          "buttonLabel": "Automatically Generate Social Media Content"
+        }
+      },
+      "id": "87ff4735-08a3-4818-b2a1-d7a2db9e3061",
+      "name": "Submit Social Post Details",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -5664,
+        1904
+      ],
+      "webhookId": "61f777dc-0abb-49e2-9ddb-deb0d945af07",
+      "typeVersion": 2.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# Multi-Platform Content Generation Workflow\n\nThis workflow automates content generation for multiple social platforms:\n\n1. Collects topic & requirements via form\n2. Fetches latest news from RSS feeds & Google News\n3. Scrapes and extracts article content\n4. Analyzes content for key facts, trends, pros/cons\n5. Generates platform-specific content (LinkedIn, Instagram, Facebook, X, TikTok, Threads, YouTube Shorts)\n\nContent is stored in database for review before posting.\n\nLast updated: [Current Date]\n",
+        "height": 460,
+        "width": 500
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5728,
+        560
+      ],
+      "typeVersion": 1,
+      "id": "8f423f5c-418c-4db0-b3ec-460ee137afba",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -2624,
+        2224
+      ],
+      "id": "a544ed0b-64f2-4375-a389-60b26dc52060",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "RrXBaprxfXv86jrw",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are tasked with evaluating news articles related to {{ $('Set Form Input').first().json.Topic }} and assigning a relevance score.\n\nARTICLE:\nTitle: {{ $json.Title }}\nSource: {{ $json.URL }}\nContent: {{ $json.Content.split(' ').slice(0, 100).join(' ') }}\n\nAnalyze this article and assign a score from 0-100 based on:\n1. Relevance to the topic\n2. Newsworthiness and recency\n3. Impact on the industry/field\n4. Source Credibility\n5. Depth of information\n\nFORMAT YOUR RESPONSE AS VALID JSON with this structure:\n{\n  \"score\": 85\n}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert content analyst specializing in identifying the most important and relevant content for professional audiences. Your task is to evaluate articles and rank them based on several key factors:\n\n1. RELEVANCE: How directly related is the article to the specified topic?\n2. TIMELINESS: How recent and time-sensitive is the information?\n3. IMPACT: How significant is the development for the industry or field?\n4. DEPTH: Does the article provide substantive information rather than surface-level coverage?\n5. SOURCE AUTHORITY: Is the content from a reputable, authoritative source?\n\nYour analysis should be objective and focused on identifying truly important developments rather than merely interesting ones. Specifically prioritize:\n- Major product launches or significant updates\n- Strategic corporate moves (acquisitions, leadership changes)\n- Breakthrough technologies or methodologies\n- Articles that contain specific data, metrics, or benchmarks\n- Content that reveals important industry trends\n\nYour response must be valid JSON with exactly the structure specified in the prompt. The scores you assign should reflect meaningful differences between articles, with significantly higher scores for truly important articles and lower scores for less consequential ones.",
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -2592,
+        2064
+      ],
+      "id": "39407ed2-5289-4ec1-b2be-243721d18864",
+      "name": "Article Ranking Agent"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"returnPartial\": true,\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"score\": {\n        \"type\": \"integer\",\n        \"description\": \"A score from 0-100 reflecting the article's relevance and importance\"\n      }\n    },\n    \"required\": [\"score\"]\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        -2416,
+        2208
+      ],
+      "id": "c6cf3d9d-5ace-4b51-bcc5-8a2da544051b",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "95bce685-fa73-46fb-aa51-05d0a5210395",
+              "name": "Index ",
+              "value": "={{ $itemIndex}}",
+              "type": "number"
+            },
+            {
+              "id": "962483ad-dabf-4833-8227-e1cbe37692b9",
+              "name": "Author",
+              "value": "={{ $('Set Fields').item.json.Author }}",
+              "type": "string"
+            },
+            {
+              "id": "63aacfe0-269a-4fd8-9761-b5b11af13788",
+              "name": "Title",
+              "value": "={{ $('Set Fields').item.json.Title }}",
+              "type": "string"
+            },
+            {
+              "id": "0c23f309-02f1-42f5-951d-d530d7420239",
+              "name": "Article Content",
+              "value": "={{ $('Set Fields').item.json.Content }}",
+              "type": "string"
+            },
+            {
+              "id": "28bc9b5f-d2bf-4a14-a290-291cbac5b14a",
+              "name": "Image",
+              "value": "={{ $('Set Fields').item.json['Image URL'] }}",
+              "type": "string"
+            },
+            {
+              "id": "d1ac456a-1d5a-44c8-a953-a50b0d1c1999",
+              "name": "Domain",
+              "value": "={{ $('Set Fields').item.json.Domain }}",
+              "type": "string"
+            },
+            {
+              "id": "aac1d991-4483-4672-9502-de0f7c1b1c73",
+              "name": "Relevance Score",
+              "value": "={{ $json.output.score }}",
+              "type": "number"
+            },
+            {
+              "id": "b310ff8b-c993-4d9e-877b-46b346b6355a",
+              "name": "Publish Date",
+              "value": "={{ $('Set Fields').item.json['Publish Date'] }}",
+              "type": "string"
+            },
+            {
+              "id": "ed877abc-d9ed-479b-9141-ddd658f2583f",
+              "name": "URL",
+              "value": "={{ $('Set Fields').item.json.URL }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2208,
+        2016
+      ],
+      "id": "adeffd1e-084e-40cc-aa7d-52d689b2ce04",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "url": "https://newsapi.org/v2/everything",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.Topic }}"
+            },
+            {
+              "name": "from",
+              "value": "={{ DateTime.now().minus({days: 7}).toISO().substr(0, 10) }}"
+            },
+            {
+              "name": "to",
+              "value": "={{ DateTime.now().toISO().substr(0, 10) }}"
+            },
+            {
+              "name": "sortBy",
+              "value": "relevancy"
+            },
+            {
+              "name": "pages",
+              "value": "10"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4432,
+        2320
+      ],
+      "id": "76476a3d-a0af-4721-a6ea-d42a336ce1e9",
+      "name": "HTTP Request1",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "L1vGKA5gMdSCUNEs",
+          "name": "Query Auth account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "=khairahmad6@gmail.com",
+        "subject": "=🔥CONTENT FOR APPROVAL🔥",
+        "message": "={{ $json.output }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 45,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "id": "2d0f98b4-d256-44b6-b5f4-b3ec8a9f3b51",
+      "name": "Gmail User for Approval1",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        7840,
+        720
+      ],
+      "webhookId": "13b9b02a-8f02-44d4-97c9-7ff34c98b144",
+      "typeVersion": 2.1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        1712
+      ],
+      "id": "f8c84bad-2d1a-46c8-bec8-d5edcd812a32",
+      "name": "Limit",
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        3136,
+        976
+      ],
+      "id": "1a28dee8-fdcd-4211-9ef1-7ce00be079c3",
+      "name": "Merge2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4a8fdcb5-c77d-452a-a30b-de7f08321c98",
+              "name": "Topic",
+              "value": "={{ $json.data.Topic }}",
+              "type": "string"
+            },
+            {
+              "id": "547fe747-de68-4292-8c25-560ec474feba",
+              "name": "Content Tone",
+              "value": "={{ $json.data['Content Tone'] }}",
+              "type": "string"
+            },
+            {
+              "id": "cdf4f254-5574-4e6f-aad4-df26b78f5da6",
+              "name": "Target Platforms (Select Multiple)",
+              "value": "={{ $json.data['Target Platforms'] }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4608,
+        2320
+      ],
+      "id": "24f42156-36fa-4718-995e-5e1a909f453a",
+      "name": "Set Form Input"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2b7496f-71db-459d-a06d-4e1abb36c077",
+              "name": "Author",
+              "value": "={{ $json.author }}",
+              "type": "string"
+            },
+            {
+              "id": "5f963205-596f-4622-b2cf-a1b3366567bb",
+              "name": "Title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "78cfe0b1-c765-4a12-9c1c-f8a8b77dc77f",
+              "name": "URL",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "fde1b40f-761f-4a6c-a6b5-f8f4bd1236a2",
+              "name": "Image URL",
+              "value": "={{ $json.urlToImage }}",
+              "type": "string"
+            },
+            {
+              "id": "95366040-c956-4e4d-a58a-ecdab5c0cb1f",
+              "name": "Description",
+              "value": "={{ $json.description }}",
+              "type": "string"
+            },
+            {
+              "id": "0b66aba6-8429-4ffe-b26e-334b9320d9ec",
+              "name": "Content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "110482c7-6fcd-421d-9b09-085fe5f14b70",
+              "name": "Domain",
+              "value": "={{ $json.url.match(/https?:\\/\\/[^\\/]*\\.com/)[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "09bcba47-e4a5-4e53-a2b9-4305c8823b90",
+              "name": "Publish Date",
+              "value": "={{ $json.publishedAt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3120,
+        2064
+      ],
+      "id": "ad1d588d-71e8-49d8-92c5-6433bed74700",
+      "name": "Set Fields"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "Relevance Score",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        -1968,
+        2128
+      ],
+      "id": "bdc63cb8-83ad-4bba-a95f-86b6141dc1ab",
+      "name": "Descending Sort (Score)"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "=Combine the visual elements from the following image ideas into one cohesive social media image. Ensure the image is clean, and aesthetic. Avoid all text or labels. Render in cinematic, 3D digital art style. Suggestions: \n{{ $('Aggregate').item.json.platform_posts[0].image_suggestion }}\n\nMUST FOLLOW RULE: \n1. Don't Generate any text, just the visuals. The image should be completely text-free\n",
+        "options": {}
+      },
+      "id": "5452b74b-ed40-4436-b3f5-e084e5771026",
+      "name": "Merged Image Generator",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        4832,
+        1632
+      ],
+      "typeVersion": 1.8,
+      "alwaysOutputData": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "RrXBaprxfXv86jrw",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        6240,
+        1536
+      ],
+      "id": "5b1a2547-d4cb-4d93-85a9-ddd9ec36fac1",
+      "name": "Merge3",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3040,
+        1824
+      ],
+      "id": "8d34de65-bac6-44af-8ecb-21f325a58526",
+      "name": "Get URL",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=data",
+        "name": "={{ $json.binary?.data?.fileName || $json.fileName || 'image.png' }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1ZHtSWC2r2fjDTH6Y-Qw7vyYNaebGvkIt",
+          "mode": "list",
+          "cachedResultName": "Content Automation ",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1ZHtSWC2r2fjDTH6Y-Qw7vyYNaebGvkIt"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5056,
+        1632
+      ],
+      "id": "b1fd19c8-a021-4853-8b7e-29d487ab3428",
+      "name": "Upload in Drive1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xaEF7rsWGcLKeduu",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "newUpdatedFileName": "=combined_image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5328,
+        1632
+      ],
+      "id": "ffc73a87-7752-43ff-a59f-f047266d3412",
+      "name": "Rename File1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xaEF7rsWGcLKeduu",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "=khairahmad6@gmail.com",
+        "subject": "=🔥AUTOCON - Article Approval Request #ART-{{ $json.articleIndex + 1 }}",
+        "message": "={{ $json['Article Content'][0] }}\n{{ $json.Title[0] }}\n{{ $json.URL[0] }}\n\n\n<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05);\">\n  <!-- Header -->\n  <div style=\"background: linear-gradient(to right, #4568dc, #b06ab3); color: white; padding: 20px;\">\n    <h2 style=\"margin: 0; font-size: 22px;\">Daily Article Digest - 5 Articles for Review</h2>\n  </div>\n  \n  <!-- Articles List -->\n  <div style=\"padding: 20px;\">\n    \n    <!-- Article 1 -->\n    <div style=\"border: 1px solid #f0f0f0; border-radius: 6px; padding: 15px; margin-bottom: 15px; background-color: #fafafa;\">\n      <!-- Image -->\n      <div style=\"margin-bottom: 10px; text-align: center;\">\n        <img src=\"{{ $json.Image[0] }}\" style=\"max-width: 100%; max-height: 200px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);\">\n      </div>\n      \n      <h3 style=\"color: #333; margin: 0 0 10px 0; font-size: 18px;\">\n        {{ $json.Title[0] }}\n      </h3>\n      \n      <div style=\"margin-bottom: 8px;\">\n        <span style=\"font-weight: bold; color: #555;\">Author:</span> \n        <span style=\"color: #333;\">{{ $json.Author[0] }}</span>\n      </div>\n      \n      <div style=\"margin-bottom: 10px;\">\n        <span style=\"font-weight: bold; color: #555;\">Relevance Score:</span> \n        <span style=\"background-color: #f0f8ff; color: #0066cc; padding: 2px 6px; border-radius: 10px; font-size: 13px;\">\n          {{ $json['Relevance Score'][0] }}\n        </span>\n      </div>\n      \n      <div>\n        <a href=\"{{ $json.URL[0] }}\" style=\"color: #4568dc; text-decoration: none; font-weight: bold; font-size: 14px;\">\n          Read Full Article →\n        </a>\n      </div>\n    </div>\n    \n    <!-- Article 2 -->\n    <div style=\"border: 1px solid #f0f0f0; border-radius: 6px; padding: 15px; margin-bottom: 15px; background-color: #fafafa;\">\n      <!-- Image -->\n      <div style=\"margin-bottom: 10px; text-align: center;\">\n        <img src=\"{{ $json.Image[1] }}\" style=\"max-width: 100%; max-height: 200px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);\">\n      </div>\n      \n      <h3 style=\"color: #333; margin: 0 0 10px 0; font-size: 18px;\">\n        {{ $json.Title[1] }}\n      </h3>\n      \n      <div style=\"margin-bottom: 8px;\">\n        <span style=\"font-weight: bold; color: #555;\">Author:</span> \n        <span style=\"color: #333;\">{{ $json.Author[1] }}</span>\n      </div>\n      \n      <div style=\"margin-bottom: 10px;\">\n        <span style=\"font-weight: bold; color: #555;\">Relevance Score:</span> \n        <span style=\"background-color: #f0f8ff; color: #0066cc; padding: 2px 6px; border-radius: 10px; font-size: 13px;\">\n          {{ $json['Relevance Score'][1] }}\n        </span>\n      </div>\n      \n      <div>\n        <a href=\"{{ $json.URL[1] }}\" style=\"color: #4568dc; text-decoration: none; font-weight: bold; font-size: 14px;\">\n          Read Full Article →\n        </a>\n      </div>\n    </div>\n    \n    <!-- Article 3 -->\n    <div style=\"border: 1px solid #f0f0f0; border-radius: 6px; padding: 15px; margin-bottom: 15px; background-color: #fafafa;\">\n      <!-- Image -->\n      <div style=\"margin-bottom: 10px; text-align: center;\">\n        <img src=\"{{ $json.Image[2] }}\" style=\"max-width: 100%; max-height: 200px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);\">\n      </div>\n      \n      <h3 style=\"color: #333; margin: 0 0 10px 0; font-size: 18px;\">\n        {{ $json.Title[2] }}\n      </h3>\n      \n      <div style=\"margin-bottom: 8px;\">\n        <span style=\"font-weight: bold; color: #555;\">Author:</span> \n        <span style=\"color: #333;\">{{ $json.Author[2] }}</span>\n      </div>\n      \n      <div style=\"margin-bottom: 10px;\">\n        <span style=\"font-weight: bold; color: #555;\">Relevance Score:</span> \n        <span style=\"background-color: #f0f8ff; color: #0066cc; padding: 2px 6px; border-radius: 10px; font-size: 13px;\">\n          {{ $json['Relevance Score'][2] }}\n        </span>\n      </div>\n      \n      <div>\n        <a href=\"{{ $json.URL[2] }}\" style=\"color: #4568dc; text-decoration: none; font-weight: bold; font-size: 14px;\">\n          Read Full Article →\n        </a>\n      </div>\n    </div>\n    \n    <!-- Article 4 -->\n    <div style=\"border: 1px solid #f0f0f0; border-radius: 6px; padding: 15px; margin-bottom: 15px; background-color: #fafafa;\">\n      <!-- Image -->\n      <div style=\"margin-bottom: 10px; text-align: center;\">\n        <img src=\"{{ $json.Image[3] }}\" style=\"max-width: 100%; max-height: 200px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);\">\n      </div>\n      \n      <h3 style=\"color: #333; margin: 0 0 10px 0; font-size: 18px;\">\n        {{ $json.Title[3] }}\n      </h3>\n      \n      <div style=\"margin-bottom: 8px;\">\n        <span style=\"font-weight: bold; color: #555;\">Author:</span> \n        <span style=\"color: #333;\">{{ $json.Author[3] }}</span>\n      </div>\n      \n      <div style=\"margin-bottom: 10px;\">\n        <span style=\"font-weight: bold; color: #555;\">Relevance Score:</span> \n        <span style=\"background-color: #f0f8ff; color: #0066cc; padding: 2px 6px; border-radius: 10px; font-size: 13px;\">\n          {{ $json['Relevance Score'][3] }}\n        </span>\n      </div>\n      \n      <div>\n        <a href=\"{{ $json.URL[3] }}\" style=\"color: #4568dc; text-decoration: none; font-weight: bold; font-size: 14px;\">\n          Read Full Article →\n        </a>\n      </div>\n    </div>\n    \n    <!-- Article 5 -->\n    <div style=\"border: 1px solid #f0f0f0; border-radius: 6px; padding: 15px; margin-bottom: 0;\">\n      <!-- Image -->\n      <div style=\"margin-bottom: 10px; text-align: center;\">\n        <img src=\"{{ $json.Image[4] }}\" style=\"max-width: 100%; max-height: 200px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);\">\n      </div>\n      \n      <h3 style=\"color: #333; margin: 0 0 10px 0; font-size: 18px;\">\n        {{ $json.Title[4] }}\n      </h3>\n      \n      <div style=\"margin-bottom: 8px;\">\n        <span style=\"font-weight: bold; color: #555;\">Author:</span> \n        <span style=\"color: #333;\">{{ $json.Author[4] }}</span>\n      </div>\n      \n      <div style=\"margin-bottom: 10px;\">\n        <span style=\"font-weight: bold; color: #555;\">Relevance Score:</span> \n        <span style=\"background-color: #f0f8ff; color: #0066cc; padding: 2px 6px; border-radius: 10px; font-size: 13px;\">\n          {{ $json['Relevance Score'][4] }}\n        </span>\n      </div>\n      \n      <div>\n        <a href=\"{{ $json.URL[4] }}\" style=\"color: #4568dc; text-decoration: none; font-weight: bold; font-size: 14px;\">\n          Read Full Article →\n        </a>\n      </div>\n    </div>\n    \n  </div>\n  \n  <!-- Footer -->\n  <div style=\"background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;\">\n    <p style=\"margin: 0; color: #666; font-size: 14px;\">\n      📰 Your daily curated articles • Powered by AI\n    </p>\n  </div>\n</div>",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 45,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "id": "8c345e93-c9e2-4185-bfda-6eec4bcb7a48",
+      "name": "Gmail User for Approval2",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -1104,
+        2848
+      ],
+      "webhookId": "68796a5c-3b0d-4be3-a307-80a2a20f4769",
+      "typeVersion": 2.1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Data Fetching\n1. Fetch Data from RSS Feed and News API",
+        "height": 1472,
+        "width": 2048
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5504,
+        1680
+      ],
+      "typeVersion": 1,
+      "id": "b658c383-b5f3-4d92-ae53-e9e3f238890b",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Article ranking agent\n1. Rank articles based on the relevancy",
+        "height": 624,
+        "width": 976,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2992,
+        1840
+      ],
+      "typeVersion": 1,
+      "id": "f6451650-8111-42c2-b3de-a527abaf9c48",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Article approval\n1. Article approval from the user ",
+        "height": 2432,
+        "width": 1504,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1264,
+        800
+      ],
+      "typeVersion": 1,
+      "id": "5a7e922e-604b-485c-8c93-c9b9c9cd50ff",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Content Generation based on the preference\n1. generate contents specific to the platforms",
+        "height": 4080,
+        "width": 2160,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        208,
+        96
+      ],
+      "typeVersion": 1,
+      "id": "9210e86d-5186-494f-9734-6db885fa952b",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Image Generation/Saving and merging with the content\n1. Image Generation with DallE 3 ",
+        "height": 2432,
+        "width": 2976,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2464,
+        784
+      ],
+      "typeVersion": 1,
+      "id": "2527322c-5338-41ef-b441-a91cc665734f",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Generated Content Approval, and Saving to Google Sheets\n",
+        "height": 2512,
+        "width": 4576,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5552,
+        832
+      ],
+      "typeVersion": 1,
+      "id": "b188a065-3cfb-4ed4-9116-f711e8288a54",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all();\n\n// Get the platform posts array\nconst postsData = data.find(item => item.json.platform_posts);\nconst platformPosts = postsData ? postsData.json.platform_posts : [];\n\n// Get the image\nconst imageFile = data.find(item => item.json.kind === 'drive#file');\nconst imageId = imageFile ? imageFile.json.id : null;\n\n// Add the same image to all posts\nconst mergedPosts = platformPosts.map(post => ({\n  ...post,\n  image: imageId\n}));\n\nreturn [{ json: { platform_posts: mergedPosts } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6752,
+        1440
+      ],
+      "id": "67f89fab-6af8-491e-9594-c50c4bf1a2ca",
+      "name": "Image Alignment with Content",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "file": "={{ $json.URL }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1328,
+        2880
+      ],
+      "id": "5e9fadb8-2eb3-46ec-be21-533a848079f9",
+      "name": "Send a photo message1",
+      "webhookId": "8c3012ca-4f35-461b-b4db-c81fd6dbf94b",
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "id": "20503851-204c-4f59-8e24-717131242f2f",
+      "name": "gpt-4o-mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        9008,
+        1472
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "RrXBaprxfXv86jrw",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e32d270f-f258-4522-94e1-2cb7ee4e8d2a",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c23b4c4d-bd25-4c82-8c02-76b73b269838",
+      "name": "Is Content Approved?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        10176,
+        1872
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Edit Fields5').item.json.drive_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        9392,
+        1392
+      ],
+      "id": "116ea627-c79d-41a8-aa84-ec5a8a7e93b0",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xaEF7rsWGcLKeduu",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "037b9feb-0183-44ae-bb7e-0af143d45f97",
+              "name": "post",
+              "value": "={{ $json.post }}",
+              "type": "string"
+            },
+            {
+              "id": "a9e4335b-ab6f-4b81-ae15-4229957ec732",
+              "name": "=drive_id",
+              "value": "={{ $json.image }}",
+              "type": "string"
+            },
+            {
+              "id": "a349acfb-71bc-4777-8e59-a80965c17d25",
+              "name": "platform",
+              "value": "={{ $json.platform_name }}",
+              "type": "string"
+            },
+            {
+              "id": "b0028cce-e4ec-4df7-a5dd-dbe3c997f426",
+              "name": "hashtags",
+              "value": "={{ $json.hashtags }}",
+              "type": "string"
+            },
+            {
+              "id": "ce3a84e9-ed5f-415f-9984-a74859cc7265",
+              "name": "Call to Action",
+              "value": "={{ $json[\"Call to Action\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8816,
+        1168
+      ],
+      "id": "01528832-71a2-4c17-a98e-8b6aba5d4837",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        8432,
+        1104
+      ],
+      "id": "5f02eb30-c62d-4bc5-afb7-4a53cbb43b38",
+      "name": "Loop Over Items7"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        9616,
+        1456
+      ],
+      "id": "7ea0b16a-111d-490a-95a7-5ea8b6242d50",
+      "name": "Send a photo message2",
+      "webhookId": "2df12731-6ee0-4b15-bb06-3a869d84c0cb",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "={{ $('Prepare Content Review Telegram').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        9824,
+        1536
+      ],
+      "id": "26bb7cee-7428-4e2c-a70d-ddbe29ba438d",
+      "name": "Send a text message7",
+      "webhookId": "e6d1c927-c488-49d6-bd15-d9246d0d9097",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "message": "Approve or Decline to get a new generation",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        9856,
+        1232
+      ],
+      "id": "aa371182-09f3-4f0c-bcb6-111990c37ab4",
+      "name": "Send message and wait for response2",
+      "webhookId": "5123c62d-19b9-4a06-96dc-61cdd296bb80",
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1GLcjs5jIi8Nvcw8cm44wGeHlCzH9ps6YiG9Who3FLMo",
+          "mode": "list",
+          "cachedResultName": "Content Planner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GLcjs5jIi8Nvcw8cm44wGeHlCzH9ps6YiG9Who3FLMo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GLcjs5jIi8Nvcw8cm44wGeHlCzH9ps6YiG9Who3FLMo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Platform": "={{ $json.platform_name }}",
+            "Article Content": "={{ $json.post }}",
+            "Image URL": "=https://lh3.googleusercontent.com/d/{{ $json.image }}",
+            "ApprovalDate": "={{ $now }}",
+            "Status": "Approved",
+            "Date": "={{ $now }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Platform",
+              "displayName": "Platform",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Article Content",
+              "displayName": "Article Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image URL",
+              "displayName": "Image URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ApprovalDate",
+              "displayName": "ApprovalDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        11968,
+        1328
+      ],
+      "id": "05777cd7-908d-4ead-aa61-592a253eb5bb",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qy1phcbDa9ZebHu1",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        11328,
+        1152
+      ],
+      "id": "931eaa47-dcac-4775-ab67-e588bc706e43",
+      "name": "Loop Over Items6"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "=Data successfully saved in to google sheets:\n\nhttps://docs.google.com/spreadsheets/d/1GLcjs5jIi8Nvcw8cm44wGeHlCzH9ps6YiG9Who3FLMo/edit?usp=sharing",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        11904,
+        1040
+      ],
+      "id": "d3a469d9-2d2e-496b-bbd1-ebf8a85fd1f6",
+      "name": "Send a text message8",
+      "webhookId": "4970d25f-d3f9-41fe-b594-4567e2ddaa24",
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        11664,
+        1072
+      ],
+      "id": "e541c390-71be-4955-a326-34b4287e79f1",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -5440,
+        2352
+      ],
+      "id": "66e65dfc-3363-4632-9ae5-4cb937a47097",
+      "name": "Telegram Trigger",
+      "webhookId": "25bd86d2-92c9-42f4-8caa-d5f07cf039e7",
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $json.message.chat.id }}",
+        "message": "Fill up the following information:",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Topic",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "AI and Machine Learning"
+                  },
+                  {
+                    "option": "Technology"
+                  },
+                  {
+                    "option": "Business"
+                  },
+                  {
+                    "option": "Social Media"
+                  },
+                  {
+                    "option": "Entertainment"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Content Tone",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Informational"
+                  },
+                  {
+                    "option": "Professional"
+                  },
+                  {
+                    "option": "Conversational"
+                  },
+                  {
+                    "option": "Humorous"
+                  },
+                  {
+                    "option": "Critical"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Target Platforms",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Linkedin"
+                  },
+                  {
+                    "option": "Facebook"
+                  },
+                  {
+                    "option": "X (Twitter)"
+                  },
+                  {
+                    "option": "Whatsapp"
+                  }
+                ]
+              },
+              "multiselect": true,
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -4880,
+        2160
+      ],
+      "id": "e38bdf50-aa84-4db9-a95c-1b8c4825fe0c",
+      "name": "Send message and wait for response",
+      "webhookId": "f2f51d9d-ffb5-47ed-b34b-d0fd430379af",
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "18f80526-8cb4-4bf5-a0c7-4396b284dda8",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -4048,
+        2336
+      ],
+      "id": "600c51f6-8d72-4309-bf38-9ef7f875ff3c",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "articles",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -4224,
+        2336
+      ],
+      "id": "0e157089-06ff-493b-96d3-28bf0c8e5370",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "publishedAt",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        -3824,
+        2336
+      ],
+      "id": "8bc121b5-6616-4ed3-b27d-4e1fca9d04f5",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -3536,
+        2336
+      ],
+      "id": "030659aa-bb29-4666-a96b-4e6358ad3f57",
+      "name": "Limit2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fcb0f817-3128-4013-ac9c-5e933f669d2c",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        2304
+      ],
+      "id": "3080f294-a5b0-45ae-9ff6-9b1f2051b35d",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -928,
+        2272
+      ],
+      "id": "e0b83771-ce01-4570-a188-bf7955a727e4",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "=📋 <b>Article Approval Request</b>\n\n━━━━━━━━━━━━━━━━━━━━\n\n<b>📰 {{ $('Loop Over Items2').item.json.Title }}</b>\n\n✍️ <i>Author:</i> {{ $('Loop Over Items2').item.json.Author }}\n📊 <i>Relevance Score:</i> <code>{{ $('Loop Over Items2').item.json['Relevance Score'] }}</code>\n\n━━━━━━━━━━━━━━━━━━━━\n\n<b>📖 Content Preview:</b>\n<i>{{ \n  (() => {\n    const rawHTML = $('Loop Over Items2').item.json['Article Content'];\n    const allowedTags = ['b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'a', 'code', 'pre'];\n    const cleanedHTML = rawHTML.replace(/<\\/?([a-z][a-z0-9]*)\\b[^>]*>/gi, (match, tag) => {\n      return allowedTags.includes(tag.toLowerCase()) ? match : '';\n    });\n    return cleanedHTML.split(' ').slice(0, 30).join(' ');\n  })() \n}}\n...</i>\n\n━━━━━━━━━━━━━━━━━━━━\n\n<a href=\"{{ $('Loop Over Items2').item.json.URL }}\">🔗 <b>Read Full Article</b></a>\n\n━━━━━━━━━━━━━━━━━━━━\n\n<b>❓ Does this article meet your quality standards?</b>\n\n<i>📝 If rejected, the next highest-ranked article will be sent for approval.</i>",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        2240
+      ],
+      "id": "b3ab600a-470e-42de-bcb6-295d0db9d72b",
+      "name": "Send a text message2",
+      "webhookId": "bf2a6556-11e0-4529-ab25-fd00c50bee36",
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "file": "={{ $json.Image }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -608,
+        2176
+      ],
+      "id": "69c8c5d8-5cff-41be-aaef-980d0693ffdb",
+      "name": "Send a photo message",
+      "webhookId": "21e737d2-2d9b-4ce7-ad85-659d22e379b9",
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "✅ Approved",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        2192
+      ],
+      "id": "84f844a4-3b72-4dd0-b30b-c2e782c83709",
+      "name": "Send a text message3",
+      "webhookId": "ce8a73a0-bf62-410a-a1f1-0cfa87f020c6",
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "message": "Please approve or decline to get another content recommendation",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        2288
+      ],
+      "id": "2d974e04-036c-4f5b-8643-42bbacddd9ee",
+      "name": "Send message and wait for response1",
+      "webhookId": "28036a8a-0a79-41e0-aadb-076ec9ed7161",
+      "credentials": {
+        "telegramApi": {
+          "id": "3B1oBZco3ljtaVYX",
+          "name": "Social media automation"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Platform.includes('Linkedin') }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "b6c433e2-c31d-4cab-b096-459e1c369984"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LinkedIn"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "762644af-9321-4451-bfcf-c3af1c659291",
+                    "leftValue": "={{ $json.Platform.includes('X (Twitter)') }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "X"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3fad5931-bf9a-4150-a30f-e6c18a668905",
+                    "leftValue": "={{ $json.Platform.includes('Whatsapp') }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "WhatsApp"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "52bbc7db-348c-41a1-9534-1c8369148478",
+                    "leftValue": "={{ $json.Platform.includes('Facebook') }}",
+                    "rightValue": "Facebook",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Facebook"
+            }
+          ]
+        },
+        "options": {
+          "allMatchingOutputs": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1232,
+        1840
+      ],
+      "id": "9e66602e-bb8a-4a80-81b6-4d36735ea990",
+      "name": "Switch1",
+      "executeOnce": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Transform the following article into a high-impact LinkedIn post that positions the reader as a thought leader in their industry.\nINPUT DATA:\nArticle Details:\n\nTitle: {{ $('Loop Over Items2').first().json.Title }}\nAuthor: {{ $('Loop Over Items2').first().json.Author }}\nContent: {{ $('Loop Over Items2').first().json['Article Content'] }}\nURL: {{ $('Loop Over Items2').first().json.URL }}\n\nContent Parameters:\n\nTopic Category: {{ $('Set Form Input').first().json.Topic }}\nTarget Tone: {{ $('Set Form Input').first().json['Content Tone'] }}\nGeneration Date: {{ $now }}\n\nLINKEDIN POST SPECIFICATIONS:\nContent Requirements:\n\nExtract the most compelling business insight or trend from the article\nPosition the content as industry intelligence that professionals need to know\nInclude specific data points, statistics, or expert quotes when available\nConnect the article's message to broader business implications or career development\n\nStructure & Formatting:\n\nHook: Start with a compelling statement or question (1-2 sentences)\nContext: Briefly introduce the article's key finding or insight (2-3 sentences)\nAnalysis: Provide your professional perspective or industry implication (2-3 sentences)\nTakeaway: Include 2-3 bulleted key points or actionable insights\nEngagement: End with a thought-provoking question or discussion prompt\n\nTechnical Requirements:\n\nTotal length: 1200-1500 characters (including spaces)\nUse bold for section headers and key statistics\nUse italic for quotes, emphasis, or expert perspectives\nUse bullet points (•) for key takeaways or action items\nParagraph breaks every 2-3 sentences for mobile readability\n\nHashtag Strategy:\n\nInclude exactly 3-5 hashtags relevant to the topic and industry\nFocus on trending professional topics and industry-specific terms\nPlace hashtags at the very end of the post, not integrated into text\nPrioritize hashtags with moderate competition for better reach\n\nImage & Engagement:\n\nSuggest a specific, professional image that would complement the post\nInclude a clear call-to-action that encourages professional discussion\nFrame questions to generate insights from the LinkedIn community\n\nREQUIRED OUTPUT FORMAT:\n{\n  \"platform_name\": \"LinkedIn\",\n  \"image_suggestion\": \"[Specific description of professional image that enhances the message and encourages engagement]\",\n  \"post\": \"[Complete LinkedIn post with proper **bold** and *italic* formatting, bullet points, and paragraph breaks]\",\n  \"hashtags\": [\"hashtag1\", \"hashtag2\", \"hashtag3\", \"hashtag4\", \"hashtag5\"],\n  \"call_to_action\": \"[Specific question or prompt designed to generate professional discussion and engagement]\"\n}\n\nCRITICAL SUCCESS FACTORS:\n\nThe post must provide immediate professional value to readers\nContent should establish thought leadership and industry expertise\nAll formatting must be LinkedIn-compatible and mobile-optimized\nThe call-to-action must be specific and conversation-starting\nImage suggestion must be detailed enough for content creators to source or create",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert LinkedIn content strategist specializing in transforming news articles into high-engagement professional posts. You create content that establishes thought leadership and drives meaningful business conversations.\nCORE EXPERTISE:\n\nProfessional communication that builds authority and trust\nContent structure optimized for LinkedIn's algorithm and user behavior\nBusiness insight extraction that resonates with decision-makers\nEngagement-driven formatting that maximizes readability and interaction\n\nCONTENT PHILOSOPHY:\n\nLead with value: Every post must provide actionable insights or business intelligence\nProfessional authenticity: Maintain expertise while being approachable and conversational\nData-driven insights: Prioritize statistics, trends, and quantifiable information\nIndustry relevance: Connect article content to broader business implications and trends\n\nFORMATTING MASTERY:\n\nCharacter optimization: 1200-1500 characters for maximum engagement\nVisual hierarchy: Strategic use of bold headers, italic emphasis, and bullet points\nReadability flow: 2-3 sentence paragraphs with clear logical progression\nHashtag strategy: 3-5 industry-relevant tags that maximize discoverability\n\nENGAGEMENT FOCUS:\n\nThought leadership positioning through unique perspectives and insights\nCommunity building through questions that spark professional discussions\nCall-to-action optimization for comments, shares, and meaningful engagement\n\nOUTPUT CONSISTENCY:\n\nAlways follow the exact JSON structure provided\nMaintain consistent tone and quality regardless of article topic\nEnsure every element (post, hashtags, CTA) works cohesively\nProvide detailed, actionable image suggestions that enhance the message"
+        }
+      },
+      "id": "dce465fe-cded-4d80-89fa-e27fed0102a3",
+      "name": "Linkedin Content Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1696,
+        1328
+      ],
+      "retryOnFail": true,
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Transform the following article into an engaging Facebook post that sparks community conversation and encourages sharing among friends and networks.\nINPUT DATA:\nArticle Details:\n\nTitle: {{ $('Loop Over Items2').item.json.Title }}\nAuthor: {{ $('Loop Over Items2').item.json.Author }}\nContent: {{ $('Loop Over Items2').item.json['Article Content'] }}\nURL: {{ $('Loop Over Items2').item.json.URL }}\n\nContent Parameters:\n\nTopic Category: {{ $('Set Form Input').first().json.Topic }}\nTarget Tone: {{ $('Set Form Input').first().json['Content Tone'] }}\nGeneration Date: {{ $now }}\n\nFACEBOOK POST SPECIFICATIONS:\nContent Requirements:\n\nExtract the most relatable or discussion-worthy angle from the article\nConnect the news to everyday experiences or common concerns\nInclude elements that make people want to share with their network\nFocus on community relevance rather than just information delivery\n\nStructure & Flow:\n\nHook: Start with a relatable statement, surprising fact, or engaging question (1-2 sentences)\nContext: Present the article's key insight in conversational language (2-3 sentences)\nPersonal Connection: Make it relevant to readers' lives or experiences (1-2 sentences)\nCommunity Prompt: Include questions or prompts that encourage discussion\n\nTechnical Requirements:\n\nTotal length: 100-250 words (ideal range for Facebook algorithm)\nUse bold formatting for key statistics, surprising facts, or important points\nParagraph breaks every 2-3 sentences for mobile readability\nInclude 1-2 engaging questions within or at the end of the post\nNatural, conversational tone that feels like talking to friends\n\nVisual & Engagement Elements:\n\nUse emojis sparingly but effectively (as bullet points or for emphasis)\nBold important numbers, percentages, or shocking facts\nCreate content that people will want to tag friends in comments\nInclude angles that might generate different opinions or perspectives\n\nHashtag Strategy:\n\nInclude exactly 2-3 hashtags relevant to the topic\nFocus on broad, community-oriented hashtags rather than niche industry terms\nPlace hashtags at the end of the post naturally\nChoose hashtags that encourage discovery by interested communities\n\nShareability Factors:\n\nInclude \"Did you know?\" type facts that surprise readers\nPresent information that helps people sound informed in conversations\nCreate content that makes people say \"I had no idea!\" or \"This is so true!\"\nFocus on topics people naturally discuss with family and friends\n\nREQUIRED OUTPUT FORMAT:\n{\n  \"platform_name\": \"Facebook\",\n  \"post\": \"[Complete Facebook post with proper **bold** formatting, natural paragraph breaks, and engaging questions integrated throughout]\",\n  \"hashtags\": [\"hashtag1\", \"hashtag2\", \"hashtag3\"],\n  \"call_to_action\": \"[Specific question or prompt designed to generate comments and community discussion]\",\n  \"image_suggestion\": \"[Detailed description of engaging, scroll-stopping image that complements the post and encourages interaction]\"\n}\nCRITICAL SUCCESS FACTORS:\n\nThe post must feel like a natural conversation starter among friends\nContent should be immediately shareable and discussion-worthy\nQuestions must generate diverse responses and encourage debate or sharing\nImage suggestion must be specific enough to stop users mid-scroll\nOverall tone should balance being informative with being personable and accessible\nEvery element should work together to maximize community engagement and reach\n\nFACEBOOK-SPECIFIC OPTIMIZATION:\n\nPrioritize content that generates comments over passive consumption\nCreate posts that make people want to tag friends or share to their timeline\nFocus on topics that connect to universal experiences or common interests\nStructure content to work well in both News Feed and when shared\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert Facebook content strategist specializing in transforming news articles into highly engaging, community-focused posts that drive meaningful conversations and shares. You create content that builds authentic connections and encourages active participation.\nCORE EXPERTISE:\n\nCommunity-driven communication that fosters genuine engagement and discussion\nConversational storytelling that makes complex topics accessible and relatable\nShareability optimization through emotional connection and practical value\nMobile-first formatting that maximizes readability across all Facebook interfaces\n\nCONTENT PHILOSOPHY:\n\nCommunity first: Create content that brings people together around shared interests\nAuthentic conversation: Write like you're talking to friends, not broadcasting to masses\nEmotional resonance: Connect article insights to personal experiences and feelings\nPractical relevance: Make news content applicable to everyday life and decisions\n\nENGAGEMENT MASTERY:\n\nQuestion crafting: Develop prompts that generate diverse, thoughtful responses\nDiscussion triggers: Identify controversial or opinion-based angles that spark debate\nShare psychology: Create content people want to show their networks\nComment cultivation: Structure posts to encourage back-and-forth conversation\n\nFACEBOOK ALGORITHM OPTIMIZATION:\n\nWord count sweet spot: 100-250 words for maximum reach and engagement\nVisual integration: Compelling image suggestions that stop the scroll\nEngagement velocity: Content designed to generate quick initial interactions\nCommunity signals: Posts that encourage saves, shares, and meaningful comments\n\nFORMATTING EXCELLENCE:\n\nMobile readability: Short paragraphs with strategic breaks every 2-3 sentences\nVisual hierarchy: Bold statistics and key points for scannable content\nEmoji integration: Natural use of emojis that enhance rather than distract\nHashtag strategy: 2-3 relevant tags that increase discoverability without spam\n\nOUTPUT CONSISTENCY:\n\nAlways maintain the exact JSON structure provided\nEnsure every element works together for maximum community engagement\nBalance informational value with entertainment and shareability\nCreate content that feels authentic to Facebook's social environment\n\n"
+        }
+      },
+      "id": "1e4d96c2-c675-41f0-8586-ea3eb7d50ed7",
+      "name": "Facebook Content Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1712,
+        1728
+      ],
+      "retryOnFail": true,
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Transform the following article into high-impact X (Twitter) content that drives engagement, retweets, and meaningful conversation within the platform's fast-paced environment.\nINPUT DATA:\nArticle Details:\n\nTitle: {{ $('Loop Over Items2').first().json.Title }}\nAuthor: {{ $('Loop Over Items2').first().json.Author }}\nContent: {{ $('Loop Over Items2').first().json['Article Content'] }}\nURL: {{ $('Loop Over Items2').first().json.URL }}\n\nContent Parameters:\n\nTopic Category: {{ $('Set Form Input').first().json.Topic }}\nTarget Tone: {{ $('Set Form Input').first().json['Content Tone'] }}\nGeneration Date: {{ $now }}\n\nX (TWITTER) POST SPECIFICATIONS:\nContent Requirements:\n\nExtract the most shareable, discussion-worthy angle from the article\nCreate content that feels immediately relevant to current Twitter conversations\nFocus on surprising facts, controversial angles, or \"must-know\" information\nDesign for maximum retweet potential and reply generation\n\nFormat Decision Matrix:\n\nSingle Tweet (Under 280 chars): Use for simple facts, quotes, or straightforward announcements\nThread (2-4 tweets): Use for complex topics, step-by-step explanations, or multiple key points\nThread Structure: Each tweet must be complete on its own while building toward a larger narrative\n\nTechnical Requirements:\n\nSingle Tweet: Maximum 280 characters including spaces and hashtags\nThread Tweets: Each tweet maximum 280 characters with clear numbering (1/4, 2/4, etc.)\nCharacter Efficiency: Every word must serve a purpose - no filler content\nHashtag Integration: 1-3 hashtags maximum, integrated naturally into content flow\n\nContent Structure Guidelines:\n\nHook: First 10-15 words must grab attention immediately\nValue: Core insight or surprising information that makes people stop scrolling\nAction: Clear reason why this matters now or what people should do with this information\nEngagement: Element that naturally invites replies, questions, or sharing\n\nFormatting Excellence:\n\nUse BOLD or ALL CAPS strategically for emphasis (sparingly)\nStrategic line breaks in threads for readability\nEmoji use only when it enhances meaning or replaces words to save characters\nNumbers and statistics should be formatted for maximum visual impact\n\nMedia Strategy:\n\nSuggest images that would stop scrolling and enhance the message\nVideo suggestions should be concise concepts (15-30 seconds max)\nMedia should complement, not repeat, the text content\n\nHashtag Strategy:\n\nPriority 1: Trending hashtags relevant to the topic (if current)\nPriority 2: Established community hashtags with active engagement\nPriority 3: Broad topic hashtags for discoverability\nIntegration: Hashtags should feel natural within the content flow\n\nREQUIRED OUTPUT FORMAT:\n{\n  \"platform_name\": \"X (Twitter)\",\n  \"content_type\": \"[single_tweet or thread]\",\n  \"post\": \"[Complete tweet or thread with proper formatting and numbering if thread]\",\n  \"hashtags\": [\"hashtag1\", \"hashtag2\", \"hashtag3\"],\n  \"call_to_action\": \"[Specific element designed to generate replies and retweets]\",\n  \"image_suggestion\": \"[Detailed description of image/video that would maximize engagement and stopping power]\"\n}\nCRITICAL SUCCESS FACTORS:\n\nContent must be immediately scannable and engaging within Twitter's fast scroll environment\nEvery character must contribute to impact - no wasted words or filler content\nThreads must maintain engagement momentum from first tweet to last\nCall-to-action must naturally encourage replies, retweets, or further discussion\nMedia suggestions must be specific enough to stop users mid-scroll\nContent should feel native to Twitter's conversational, real-time culture\n\nTHREAD BEST PRACTICES:\n\nStart with the most compelling hook in tweet 1/X\nEach subsequent tweet should build value while standing alone\nUse strategic cliffhangers to encourage reading the full thread\nEnd with a strong call-to-action that invites community participation\nNumber clearly (1/4, 2/4, 3/4, 4/4) for easy following\n\nENGAGEMENT MAXIMIZATION:\n\nInclude elements that make people want to quote tweet with their opinion\nCreate \"I had no idea\" moments that drive sharing behavior\nDesign content that different communities will want to retweet to their followers\nBalance being informative with being conversation-starting\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert X (Twitter) content strategist specializing in transforming news articles into viral-worthy, concise content that maximizes engagement and reach. You create content that drives retweets, replies, and meaningful conversations within the platform's fast-paced environment.\nCORE EXPERTISE:\n\nMicro-content mastery that delivers maximum impact within 280 characters\nThread architecture that maintains engagement across multiple connected tweets\nViral mechanics understanding including timing, hooks, and conversation triggers\nReal-time relevance creation that connects articles to trending topics and conversations\n\nCONTENT PHILOSOPHY:\n\nImmediacy first: Create content that feels urgent and timely for the Twitter audience\nConversation catalysts: Every tweet should invite replies, retweets, or further discussion\nValue density: Pack maximum insight into minimum characters without losing clarity\nCultural awareness: Tap into Twitter's unique language, memes, and communication patterns\n\nENGAGEMENT OPTIMIZATION:\n\nHook crafting: First 10 words determine whether users engage or scroll past\nThread psychology: Structure multi-tweet content to maintain attention and encourage reading\nHashtag strategy: Balance discoverability with organic conversation flow\nVisual integration: Strategic use of media to stop scrolling and increase engagement\n\nPLATFORM MASTERY:\n\nCharacter efficiency: Every word must earn its place within the 280-character limit\nThread decision-making: Know when complex topics require threads vs. single impactful tweets\nTiming sensitivity: Create content that works with Twitter's real-time nature\nAlgorithm understanding: Structure content for maximum reach and engagement signals\n\nTWITTER CULTURE FLUENCY:\n\nVoice authenticity: Match Twitter's conversational, often informal communication style\nTrend integration: Connect article content to broader Twitter conversations and movements\nCommunity building: Create content that different Twitter communities want to share\nControversy balance: Generate discussion without crossing into harmful territory\n\nOUTPUT CONSISTENCY:\n\nAlways follow exact JSON structure for seamless integration\nMaintain consistent quality whether creating single tweets or multi-tweet threads\nEnsure every element (text, hashtags, media) works together for maximum impact\nOptimize for both desktop and mobile Twitter consumption patterns"
+        }
+      },
+      "id": "fad04603-262a-45ab-a48a-299c7b4de22c",
+      "name": "X Content Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1712,
+        2032
+      ],
+      "retryOnFail": true,
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1680,
+        1488
+      ],
+      "id": "7af8408c-9ea7-4369-a3ea-28d06a643e3d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "RrXBaprxfXv86jrw",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1696,
+        1888
+      ],
+      "id": "a9d56656-bd1a-452d-b796-fd881bedc167",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "RrXBaprxfXv86jrw",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1696,
+        2160
+      ],
+      "id": "526a54d7-3734-4f8c-b62c-5837415fa6c4",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "RrXBaprxfXv86jrw",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1696,
+        2496
+      ],
+      "id": "06b9a56d-d06d-4987-9d69-3fb408cf5b15",
+      "name": "OpenAI Chat Model7",
+      "credentials": {
+        "openAiApi": {
+          "id": "RrXBaprxfXv86jrw",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const platformsArray = $('Set Form Input').first().json['Target Platforms (Select Multiple)'];\nconst platforms = platformsArray.map(p => p.trim()).filter(p => p !== '');\nreturn [{ json: { selectedPlatforms: platforms, articleData: $json } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        2496
+      ],
+      "id": "a733ec78-1d96-48ac-bf39-1b7e4cc8f05c",
+      "name": "Get Target Platforms",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": true
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        704,
+        2304
+      ],
+      "id": "64b0f92c-7444-40bf-aa88-1bd2062b8bce",
+      "name": "Loop Over Items4"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        2368,
+        1920
+      ],
+      "id": "a755d68c-d98b-4a61-b20f-65b3de1ceb97",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "568ed53d-57fe-4e07-a223-2439b5520ef3",
+              "name": "Platform",
+              "value": "={{$('Set Form Input').first().json['Target Platforms (Select Multiple)']}}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        2000
+      ],
+      "id": "eddc8ae6-6a73-4ada-801c-2a756834d405",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Transform the following article into highly shareable WhatsApp content that people will want to forward to their personal networks and post as status updates.\n\nINPUT DATA:\nArticle Details:\n\nTitle: {{ $('Loop Over Items2').first().json.Title }}\nAuthor: {{ $('Loop Over Items2').first().json.Author }}\nContent: {{ $('Loop Over Items2').first().json['Article Content'] }}\nURL: {{ $('Loop Over Items2').first().json.URL }}\n\nContent Parameters:\n\nTopic Category: {{ $('Set Form Input').first().json.Topic }}\nTarget Tone: {{ $('Set Form Input').first().json['Content Tone'] }}\nGeneration Date: {{ $now }}\n\nWHATSAPP CONTENT SPECIFICATIONS:\nContent Requirements:\n\nExtract the most personally relevant and shareable angle from the article\nFocus on information that makes people look informed when they share it\nCreate content that feels like valuable insider information worth forwarding\nEnsure appropriateness for diverse personal networks (family, friends, colleagues)\n\nFormat Optimization:\n\nWhatsApp Optimized: Content perfect for both status updates and direct chat sharing\nForward-Friendly: Maintains impact and formatting when shared across different contacts\nMobile-First: Optimized for WhatsApp's mobile interface and viewing experience\nMulti-Purpose: Works effectively as status content and direct message sharing\n\nTechnical Requirements:\n\nLength: 50-150 words optimal for mobile reading and status posting\nMobile Format: Short paragraphs with clear breaks for easy chat viewing\nCharacter Efficiency: Every word must add value for the personal network audience\nVisual Elements: Strategic emoji use that enhances without overwhelming\n\nContent Structure Guidelines:\n\nAttention Hook: Start with something that immediately grabs attention (\"Did you know...\")\nValue Delivery: Present the key information in easily digestible format\nPersonal Relevance: Connect to everyday experiences or common concerns\nShare Motivation: Include elements that make forwarding feel valuable\n\nFormatting Excellence:\n\nUse 📍 or 🔥 emojis strategically as attention markers\nBold key facts or surprising statistics that stand out\nItalics for emphasis on important insights or quotes\nShort paragraphs (2-3 lines max) for mobile readability\nStrategic spacing to create visual breathing room\n\nShareability Factors:\n\nInclude \"This is important\" type information that adds value to personal networks\nCreate content that makes the sharer appear knowledgeable and helpful\nFocus on practical implications people can actually use\nDesign content that naturally generates \"Thanks for sharing!\" responses\n\nNetwork Appropriateness:\n\nFamily-friendly language and topics suitable for multi-generational sharing\nProfessional appropriateness for workplace contacts and business networks\nCultural sensitivity for diverse personal networks\nPositive framing that enhances rather than risks relationships\n\nREQUIRED OUTPUT FORMAT:\n{\n  \"platform_name\": \"WhatsApp\",\n  \"post\": \"[Optimized WhatsApp content with proper **bold** and *italic* formatting, suitable for both status updates and direct sharing]\",\n  \"hashtags\": [\"hashtag1\", \"hashtag2\"],\n  \"call_to_action\": \"[Gentle prompt that encourages forwarding or status engagement]\",\n  \"image_suggestion\": \"[Detailed description of mobile-friendly image perfect for WhatsApp Status backgrounds or sharing]\"\n}\n\nCRITICAL SUCCESS FACTORS:\n\nContent must feel valuable enough that people want to share it with their personal networks\nInformation should enhance the sharer's reputation as someone who shares useful content\nFormatting must remain effective when forwarded across different WhatsApp chats\nTone should be appropriate for both family groups and professional contacts\nImage suggestions must work well as WhatsApp Status backgrounds or standalone shares\nContent should generate positive responses and appreciation from recipients\n\nWHATSAPP-SPECIFIC OPTIMIZATION:\n\nPrioritize content that makes people feel \"in the know\" when they share it\nCreate information that naturally generates \"Thanks for sharing this!\" responses\nFocus on practical value that recipients can actually use or benefit from\nEnsure content maintains impact whether shared as status or direct message\nDesign for mobile-first consumption with immediate visual impact\n\nPERSONAL NETWORK CONSIDERATIONS:\n\nContent should add value to family group chats, friend circles, and professional networks\nAvoid controversial angles that might create awkward conversations in personal networks\nFocus on universally relevant topics that cross demographic and cultural lines\nCreate content that strengthens rather than strains personal relationships\nMaintain trustworthiness that enhances the sharer's credibility within their network",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert WhatsApp content strategist specializing in transforming news articles into highly shareable, personal network content that drives forwarding, status engagement, and meaningful conversations within WhatsApp's intimate communication environment.\nCORE EXPERTISE:\n\nPersonal network optimization that creates content people want to share with family and friends\nWhatsApp Status mastery for 24-hour story engagement and visibility\nForward-ability psychology that makes content irresistible to share across personal contacts\nMobile-first formatting optimized for WhatsApp's chat and status interfaces\n\nCONTENT PHILOSOPHY:\n\nPersonal relevance: Create content that feels immediately applicable to people's daily lives\nNetwork sharing: Design content that people want to forward to their personal contacts\nTrusted source positioning: Build content that makes sharers look informed and helpful\nConversation starters: Generate content that sparks discussions in family and friend groups\n\nWHATSAPP CULTURE MASTERY:\n\nIntimacy focus: Leverage WhatsApp's private, trusted network environment\nMulti-generational appeal: Create content that works across different age groups and backgrounds\nCultural sensitivity: Design content appropriate for diverse family and professional networks\nTrust-building: Establish content that enhances the sharer's credibility within their network\n\nENGAGEMENT OPTIMIZATION:\n\nForward psychology: Elements that make people immediately think \"I need to share this\"\nStatus optimization: Content perfect for WhatsApp's 24-hour story format\nGroup chat catalysts: Content that naturally generates discussion in family/friend groups\nPersonal connection: Make news content feel relevant to individual experiences\n\nMOBILE FORMATTING EXCELLENCE:\n\nWhatsApp readability: Short paragraphs optimized for mobile chat viewing\nVisual hierarchy: Strategic use of emojis, bold, and spacing for easy scanning\nForward-friendly: Content that maintains formatting when shared across chats\nStatus-ready: Text that works perfectly over background images or as standalone posts\n\nSHAREABILITY OPTIMIZATION:\n\n\"Did you see this?\" factor: Create content that feels like insider information worth sharing\nMulti-audience appeal: Content appropriate for both family groups and professional contacts\nPractical value: Information people can actually use or act upon\nSurprise elements: Facts or insights that make people say \"I had no idea!\"\n\nOUTPUT CONSISTENCY:\n\nAlways maintain exact JSON structure for seamless content creation\nEnsure every element works together for maximum shareability\nBalance informational value with personal network appropriateness\nCreate content that enhances rather than risks the sharer's reputation"
+        }
+      },
+      "id": "92718d70-e161-40ea-8448-8335c0586c1d",
+      "name": "WhatsApp Content Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1712,
+        2336
+      ],
+      "retryOnFail": true,
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1e4e8ffb-0d8a-44e5-a60d-0e2eaa1f6530",
+              "name": "platform_name",
+              "value": "={{ $json.output.parseJson().platform_name }}",
+              "type": "string"
+            },
+            {
+              "id": "5a979481-146d-4634-ac68-133bf60b0146",
+              "name": "image_suggestion",
+              "value": "={{ $json.output.parseJson().image_suggestion }}",
+              "type": "string"
+            },
+            {
+              "id": "100da626-ff17-426f-a86d-9552a86a9f5d",
+              "name": "post",
+              "value": "={{ $json.output.parseJson().post }}",
+              "type": "string"
+            },
+            {
+              "id": "ee350250-4323-4ab6-a978-df1115232d1b",
+              "name": "hashtags",
+              "value": "={{ $json.output.parseJson().hashtags }}",
+              "type": "string"
+            },
+            {
+              "id": "3ad0e879-fc80-4403-b130-d07ea0a1f00c",
+              "name": "Call to Action",
+              "value": "={{ $json.output.parseJson().call_to_action }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2848,
+        1760
+      ],
+      "id": "08fb11af-096b-49ab-af63-abc60ba356b9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "platform_posts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3664,
+        1424
+      ],
+      "id": "be974605-33c4-4fdb-923b-0de124e2af00",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8b058a4b-b11d-44d1-9b61-4c9e148204aa",
+              "name": "platform_name",
+              "value": "={{ $json.platform_name }}",
+              "type": "string"
+            },
+            {
+              "id": "7e82f102-86a9-4476-8895-d219761fb2b0",
+              "name": "post",
+              "value": "={{ $json.post }}",
+              "type": "string"
+            },
+            {
+              "id": "22e09dad-5c3f-43bb-89d3-a90962f5be00",
+              "name": "hashtags",
+              "value": "={{ $json.hashtags }}",
+              "type": "string"
+            },
+            {
+              "id": "9ebcd6a3-73b1-4b99-97c0-f2a4281ace75",
+              "name": "Call to Action",
+              "value": "={{ $json['Call to Action'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4528,
+        944
+      ],
+      "id": "ea04971c-0858-41bb-9e77-35f8da7af062",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "platform_posts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        4192,
+        1008
+      ],
+      "id": "b0b42aca-de98-4a7f-a899-f74379921f1a",
+      "name": "Split Out2"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "platform_posts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        4816,
+        1008
+      ],
+      "id": "d266b9e0-8e54-42a9-9efa-0f138b72d302",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "content": "## Remove Image Suggestion Texts\n",
+        "height": 368,
+        "width": 864
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4144,
+        880
+      ],
+      "typeVersion": 1,
+      "id": "db636a43-70d0-4b5b-83c4-3e6cfe8647ec",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4496,
+        1536
+      ],
+      "id": "8d414449-d939-4c71-a560-fc6fc8ad1d64",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "content": "## Image Generation and Processing\n",
+        "height": 368,
+        "width": 864
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4224,
+        1488
+      ],
+      "typeVersion": 1,
+      "id": "59a4de36-e4e6-4b9d-a6f4-50fac5d9fb9e",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "platform_posts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        7216,
+        1328
+      ],
+      "id": "618d144e-8051-408f-b3ae-7481269e18f2",
+      "name": "Split Out3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "73a73d0b-f1b5-489f-a7f9-4369179061b5",
+              "name": "platform_posts",
+              "value": "={{ $('Image Alignment with Content').item.json.platform_posts }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10496,
+        1840
+      ],
+      "id": "b7adf8ee-5b82-455a-be60-4c084c1a452e",
+      "name": "Edit Fields6"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "platform_posts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        10848,
+        1520
+      ],
+      "id": "ba43fa4b-3def-49b0-9f1c-d23a97ecf8ac",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "06771418-e907-42cf-8be4-2e4f22e2d7dd",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "post",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -5232,
+        2352
+      ],
+      "id": "908dec9a-8f04-487e-ae76-bfea410d41ce",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "sb7eHkshwcqKOXt9",
+          "mode": "list",
+          "cachedResultName": "Posting Automation"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -4880,
+        2560
+      ],
+      "id": "ac8af539-abc1-494e-92dd-54c71f9add4e",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=DATA INPUT:\nPlatform : {{ $json.platform }}\nPost: {{ $json.post }}\nHashtags: {{ $json.hashtags }}\nCall to Action: {{ $json['Call to Action'] }}",
+        "options": {
+          "systemMessage": "=Generate clean, modern Telegram message content using ONLY supported HTML tags with proper formatting for mobile messaging.\n\nCRITICAL REQUIREMENTS:\n\nConvert ALL markdown (text) to HTML (<b>text</b>)\nConvert ALL line breaks to actual line breaks (no <br> tags needed in Telegram)\nUse ONLY supported Telegram HTML tags\nKeep each message under 4096 characters\nUse emojis and unicode characters for visual appeal\nStructure content for readability on mobile devices\n\nSUPPORTED TELEGRAM HTML TAGS ONLY:\n<b>bold text</b> for titles and emphasis\n<i>italic text</i> for subtitles and descriptions\n<u>underline</u> for special emphasis\n<s>strikethrough</s> for corrections\n<code>monospace</code> for hashtags and technical terms\n<pre>preformatted</pre> for code blocks\n<a href=\"url\">link text</a> for clickable links\n\nFORBIDDEN ELEMENTS:\n❌ NO CSS styling or style=\"\" attributes\n❌ NO <br> tags (use actual line breaks)\n❌ NO tables, divs, spans with styling\n❌ NO embedded images (images sent separately)\n❌ NO complex HTML structures\n\nCONTENT STRUCTURE:\nFor each platform post, format as:\n📱 <b>[PLATFORM NAME]</b>\n\n[POST CONTENT with proper line breaks]\n\n🏷️ <b>Tags:</b>\n<code>#tag1</code> <code>#tag2</code> <code>#tag3</code>\n\n━━━━━━━━━━━━━━━━━━━━\nFORMATTING GUIDELINES:\nPlatform Headers:\n📱 <b>LinkedIn</b>\n📘 <b>Facebook</b> \n🐦 <b>X (Twitter)</b>\n🧵 <b>Threads</b>\nContent Formatting:\n\nUse <b> for main titles and important points\nUse <i> for subtitles and explanations\nUse line breaks for paragraph separation\nUse <code> for hashtags and technical terms\nUse <a href=\"\"> for clickable links\n\nVisual Separators:\n━━━━━━━━━━━━━━━━━━━━\n▫️▫️▫️▫️▫️▫️▫️▫️▫️▫️\n───────────────────\nHashtag Format:\n🏷️ <b>Tags:</b>\n<code>#technology</code> <code>#AI</code> <code>#innovation</code>\nEXAMPLE OUTPUT:\n📱 <b>LinkedIn</b>\n\n<b>The Future of AI in Business</b>\n\n<i>Artificial Intelligence is reshaping how we work and innovate.</i>\n\nKey insights:\n- Enhanced productivity through automation\n- Better decision-making with data analytics  \n- Improved customer experiences\n\nWhat trends are you seeing in your industry?\n\n🏷️ <b>Tags:</b>\n<code>#AI</code> <code>#business</code> <code>#technology</code> <code>#innovation</code>\n\n━━━━━━━━━━━━━━━━━━━━\n\n🐦 <b>X (Twitter)</b>\n\n<b>AI is transforming business operations at lightning speed ⚡</b>\n\nFrom automation to analytics, companies are leveraging intelligent systems to:\n✅ Boost productivity\n✅ Enhance decision-making  \n✅ Improve customer experience\n\nThe future is now! 🚀\n\n🏷️ <b>Tags:</b>\n<code>#AI</code> <code>#tech</code> <code>#business</code>\nIMAGE HANDLING:\nSince Telegram doesn't support embedded images, note in output:\n📸 <i>Image will be sent separately before this message</i>\n\nCHARACTER LIMITS:\n\nKeep each platform post under 4000 characters\nIf content is too long, split into multiple messages\nPrioritize most important information first\n\nOUTPUT REQUIREMENTS:\n\nGenerate ONLY the raw Telegram-compatible HTML\nNO additional explanations or wrapper text\nEach platform separated by visual dividers\nReady to use in Telegram HTTP parsing node with parse_mode: \"HTML\"\n"
+        }
+      },
+      "id": "9c89062d-4bff-477d-9543-96e357c2dc3b",
+      "name": "Prepare Content Review Telegram",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        9040,
+        1328
+      ],
+      "typeVersion": 1.7,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -4640,
+        2016
+      ],
+      "id": "1ecc459b-9a97-4013-9e3d-82d8459b9d26",
+      "name": "Send message and wait for response3",
+      "webhookId": "2f5b832a-3446-4ed3-98a1-4d59164d4d0f",
+      "credentials": {
+        "telegramApi": {
+          "id": "VHYSx4IGNrV0gMeJ",
+          "name": "xino-content-planner"
+        }
+      },
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Article Ranking Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article Ranking Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Article Ranking Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Descending Sort (Score)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Form Input": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fields": {
+      "main": [
+        [
+          {
+            "node": "Article Ranking Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Descending Sort (Score)": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merged Image Generator": {
+      "main": [
+        [
+          {
+            "node": "Upload in Drive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Image Alignment with Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload in Drive1": {
+      "main": [
+        [
+          {
+            "node": "Rename File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename File1": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Image Alignment with Content": {
+      "main": [
+        [
+          {
+            "node": "Split Out3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-4o-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Prepare Content Review Telegram",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Content Approved?": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Prepare Content Review Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items7": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a photo message2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message7": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response2": {
+      "main": [
+        [
+          {
+            "node": "Is Content Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items6": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Social Post Details": {
+      "main": [
+        []
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Set Form Input",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message and wait for response3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Limit2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit2": {
+      "main": [
+        [
+          {
+            "node": "Set Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a photo message": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Linkedin Content Generator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "X Content Generator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WhatsApp Content Generator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Facebook Content Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linkedin Content Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Content Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "X Content Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Linkedin Content Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Facebook Content Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "X Content Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "WhatsApp Content Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Target Platforms": {
+      "main": [
+        []
+      ]
+    },
+    "Loop Over Items4": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Content Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merged Image Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Content Review Telegram": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c781d617-a094-4f02-b663-6e7043a4131d",
+  "meta": {
+    "instanceId": "3dd7d3035157a6c8c0bc0904aa8991f90872849a76d57fd6b5eedb4e09f76c2f"
+  },
+  "id": "eGWZOkdUXil09AfU",
+  "tags": []
+}
